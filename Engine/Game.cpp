@@ -26,11 +26,12 @@ Game::Game( MainWindow& wnd )
 	wnd( wnd ),
 	gfx( wnd )
 {
+	board.Init();
 }
 
 void Game::Go()
 {
-	gfx.BeginFrame();	
+	//gfx.BeginFrame();	
 	UpdateModel();
 	ComposeFrame();
 	gfx.EndFrame();
@@ -38,8 +39,13 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	board.GetPointPos(22);//expect x=910, y=30
 }
 
 void Game::ComposeFrame()
 {
+	gfx.DrawRect(0, 0, 250, gfx.ScreenHeight, Colors::MakeRGB(128, 128, 128));
+	gfx.DrawRect(10, 10, 230, gfx.ScreenHeight-20, Colors::MakeRGB(64, 64, 64));
+	board.Draw(gfx);
+	//gfx.DrawRect(wnd.mouse.GetPosX(), wnd.mouse.GetPosY(), 50, 50, color);
 }
