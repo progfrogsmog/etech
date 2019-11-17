@@ -24,6 +24,7 @@
 #include "Mouse.h"
 #include "Graphics.h"
 #include "Board.h"
+#include "Resistor.h"
 
 class Game
 {
@@ -37,7 +38,8 @@ private:
 	void UpdateModel();
 	/********************************/
 	/*  User Functions              */
-	int CalcCoord(int x_in, int offset = 0);
+	int CalcCoord(int x_in, int offset = 0);//for fixed points
+	int PixToPos(int x_in, int offset = 0);//calc from coord to pos
 	/********************************/
 private:
 	MainWindow& wnd;
@@ -48,5 +50,9 @@ private:
 	int mouseX = 100;
 	int mouseY = 100;
 	Board board;
+	bool releasedR = true;
+	bool tempDraw = false;
+	int amountResistors = 0;
+	Resistor* resistors = new Resistor[10];
 	/********************************/
 };

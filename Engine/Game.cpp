@@ -41,6 +41,22 @@ void Game::UpdateModel()
 {
 	mouseX = CalcCoord(wnd.mouse.GetPosX(),10);//10 offset to fill the gap between sideboard and board
 	mouseY = CalcCoord(wnd.mouse.GetPosY());
+
+	if (wnd.kbd.KeyIsPressed(0x52) && releasedR)
+	{
+		releasedR = false;
+		tempDraw = true;
+	}
+	else if(!wnd.kbd.KeyIsPressed(0x52) && !releasedR)
+	{
+		releasedR = true;
+	}
+
+	if (wnd.mouse.LeftIsPressed() && tempDraw)
+	{
+		tempDraw = false;
+		resistors[amountResistors++] = Resistor("R1", 1000, Vei2(PixToPos(mouseX,280), PixToPos(mouseY,30)));
+	}
 }
 
 int Game::CalcCoord(int x_in, int offset)//choose closest point
@@ -56,12 +72,25 @@ int Game::CalcCoord(int x_in, int offset)//choose closest point
 	return less;
 }
 
+int Game::PixToPos(int x_in, int offset)
+{
+	return (x_in - offset) / 40;
+}
+
 void Game::ComposeFrame()
 {
-	gfx.DrawRect(0, 0, 250, gfx.ScreenHeight, Colors::MakeRGB(128, 128, 128));
-	gfx.DrawRect(10, 10, 230, gfx.ScreenHeight-20, Colors::MakeRGB(64, 64, 64));
+	gfx.DrawRect(0, 0, 250, gfx.ScreenHeight, Colors::MakeRGB(128, 128, 128));//sideboard
+	gfx.DrawRect(10, 10, 230, gfx.ScreenHeight-20, Colors::MakeRGB(64, 64, 64));//sideboard
 	board.Draw(gfx);
-	gfx.DrawRect(mouseX-5 , mouseY   , 10, 120, Colors::Black);
-	gfx.DrawRect(mouseX-15, mouseY+20, 30, 80 , Colors::Blue);
-	//gfx.DrawRect(mouseX, mouseY, 30, 80 , Colors::Blue);
+
+	for (int i = 0; i < amountResistors; i++)
+	{
+		resistors[i].Draw(gfx);
+	}
+
+	if (tempDraw)
+	{
+		gfx.DrawRect(mouseX - 5, mouseY, 10, 120, Colors::Black);//res
+		gfx.DrawRect(mouseX - 15, mouseY + 20, 30, 80, Colors::Blue);//res
+	}
 }
