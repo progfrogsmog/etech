@@ -37,13 +37,16 @@ private:
 	void UpdateModel();
 	/********************************/
 	/*  User Functions              */
+	int CalcCoord(int x_in, int offset = 0);
 	/********************************/
 private:
 	MainWindow& wnd;
 	Graphics gfx;
 	/********************************/
 	/*  User Variables              */
-	Color color = Colors::Red;
+	Color color = Colors::Cyan;
+	int mouseX = 100;
+	int mouseY = 100;
 	Board board;
 	/********************************/
 };

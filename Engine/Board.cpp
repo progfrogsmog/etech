@@ -33,7 +33,7 @@ void Board::Point::SetPos(int x_in, int y_in)
 	pos = { x_in,y_in };
 }
 
-Vei2 Board::Point::GetPos()//this returns unexpected result
+Vei2 Board::Point::GetPos()
 {
 	return pos;
 }

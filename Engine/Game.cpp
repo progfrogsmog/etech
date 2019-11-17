@@ -39,7 +39,21 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	board.GetPointPos(22);//expect x=910, y=30
+	mouseX = CalcCoord(wnd.mouse.GetPosX(),10);//10 offset to fill the gap between sideboard and board
+	mouseY = CalcCoord(wnd.mouse.GetPosY());
+}
+
+int Game::CalcCoord(int x_in, int offset)//choose closest point
+{
+	int i = 0;
+	for (; 30 + 40 * i < x_in; i++);
+	int less = offset + 30 + 40 * (i-1);
+	int more = offset + 30 + 40 * i;
+	if (more - x_in < x_in - less)
+	{
+		return more;
+	}
+	return less;
 }
 
 void Game::ComposeFrame()
@@ -47,5 +61,7 @@ void Game::ComposeFrame()
 	gfx.DrawRect(0, 0, 250, gfx.ScreenHeight, Colors::MakeRGB(128, 128, 128));
 	gfx.DrawRect(10, 10, 230, gfx.ScreenHeight-20, Colors::MakeRGB(64, 64, 64));
 	board.Draw(gfx);
-	//gfx.DrawRect(wnd.mouse.GetPosX(), wnd.mouse.GetPosY(), 50, 50, color);
+	gfx.DrawRect(mouseX-5 , mouseY   , 10, 120, Colors::Black);
+	gfx.DrawRect(mouseX-15, mouseY+20, 30, 80 , Colors::Blue);
+	//gfx.DrawRect(mouseX, mouseY, 30, 80 , Colors::Blue);
 }
