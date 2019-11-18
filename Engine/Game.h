@@ -53,6 +53,7 @@ private:
 	bool releasedR = true;
 	bool tempDraw = false;
 	int amountResistors = 0;
+	char resistorDir = 0;
 	Resistor* resistors = new Resistor[10];
 	/********************************/
 };

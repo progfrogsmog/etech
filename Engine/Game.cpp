@@ -42,12 +42,27 @@ void Game::UpdateModel()
 	mouseX = CalcCoord(wnd.mouse.GetPosX(),10);//10 offset to fill the gap between sideboard and board
 	mouseY = CalcCoord(wnd.mouse.GetPosY());
 
-	if (wnd.kbd.KeyIsPressed(0x52) && releasedR)
+	if (wnd.kbd.KeyIsPressed(0x52) && releasedR)//press R
 	{
 		releasedR = false;
+		if (tempDraw)//here R is pressed again while resistor is not placed so turn resistor accordingly
+		{
+			if (resistorDir > 4)
+			{
+				resistorDir = 1;
+			}
+			else
+			{
+				resistorDir <<= 1;
+			}
+		}
+		else
+		{
+			resistorDir = 1;
+		}
 		tempDraw = true;
 	}
-	else if(!wnd.kbd.KeyIsPressed(0x52) && !releasedR)
+	else if(!wnd.kbd.KeyIsPressed(0x52) && !releasedR)//release R
 	{
 		releasedR = true;
 	}
@@ -90,7 +105,25 @@ void Game::ComposeFrame()
 
 	if (tempDraw)
 	{
-		gfx.DrawRect(mouseX - 5, mouseY, 10, 120, Colors::Black);//res
-		gfx.DrawRect(mouseX - 15, mouseY + 20, 30, 80, Colors::Blue);//res
+		if (resistorDir & 0b1)
+		{
+			gfx.DrawRect(mouseX - 5, mouseY, 10, 120, Colors::Black);//res
+			gfx.DrawRect(mouseX - 15, mouseY + 20, 30, 80, Colors::Blue);//res
+		}
+		else if (resistorDir & 0b10)
+		{
+			gfx.DrawRect(mouseX , mouseY - 5, 120, 10, Colors::Black);//res
+			gfx.DrawRect(mouseX + 20, mouseY - 15, 80, 30, Colors::Blue);//res
+		}
+		else if (resistorDir & 0b100)
+		{
+			gfx.DrawRect(mouseX - 5, mouseY - 120, 10, 120, Colors::Black);//res
+			gfx.DrawRect(mouseX - 15, mouseY - 100, 30, 80, Colors::Blue);//res
+		}
+		else
+		{
+			gfx.DrawRect(mouseX - 120, mouseY - 5, 120, 10, Colors::Black);//res
+			gfx.DrawRect(mouseX - 100, mouseY - 15, 80, 30, Colors::Blue);//res
+		}
 	}
 }

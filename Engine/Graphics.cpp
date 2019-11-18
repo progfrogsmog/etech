@@ -322,7 +322,10 @@ void Graphics::DrawRect(int x, int y, int width, int height, Color c)
 	{
 		for (int j = x; j < x + width; j++)
 		{
-			PutPixel(j, i, c);
+			if (j >= 0 && i >= 0 && j < ScreenWidth && i < ScreenHeight)
+			{
+				PutPixel(j, i, c);
+			}
 		}
 	}
 }
