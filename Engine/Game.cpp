@@ -41,11 +41,11 @@ void Game::UpdateModel()
 {
 	mouseX = CalcCoord(wnd.mouse.GetPosX(),10);//10 offset to fill the gap between sideboard and board
 	mouseY = CalcCoord(wnd.mouse.GetPosY());
-
+	//R Key resistor
 	if (wnd.kbd.KeyIsPressed(0x52) && releasedR)//press R
 	{
 		releasedR = false;
-		if (tempDraw)//here R is pressed again while resistor is not placed so turn resistor accordingly
+		if (tempDrawRes)//here R is pressed again while resistor is not placed so turn resistor accordingly
 		{
 			if (resistorDir > 4)
 			{
@@ -60,17 +60,97 @@ void Game::UpdateModel()
 		{
 			resistorDir = 1;
 		}
-		tempDraw = true;
+		if (noneSelected)
+		{
+			tempDrawRes = true;
+			noneSelected = false;
+		}
 	}
 	else if(!wnd.kbd.KeyIsPressed(0x52) && !releasedR)//release R
 	{
 		releasedR = true;
 	}
-
-	if (wnd.mouse.LeftIsPressed() && tempDraw)
+	//L Key line
+	if (wnd.kbd.KeyIsPressed(0x4C) && releasedL)//L for line draw
 	{
-		tempDraw = false;
-		resistors[amountResistors++] = Resistor("R1", 1000, Vei2(PixToPos(mouseX,280), PixToPos(mouseY,30)));
+		releasedL = false;
+		if (noneSelected)
+		{
+			tempDrawLine = true;
+			noneSelected = false;
+		}
+	}
+	else if (!wnd.kbd.KeyIsPressed(0x4c) && !releasedL)
+	{
+		releasedL = true;
+	}
+	//mouse left
+	if (wnd.mouse.LeftIsPressed() && releasedMouseLeft)//mouse left button
+	{
+		releasedMouseLeft = false;
+		if (tempDrawRes)
+		{
+			resistors[amountResistors++] = Resistor("R1", 1000, Vei2(PixToPos(mouseX, 280), PixToPos(mouseY, 30)));
+			tempDrawRes = false;
+			noneSelected = true;
+		}
+		if (activeLineDraw)
+		{
+			lines[amountLines++] = activeRect;
+			activeLineDraw = false;
+			//noneSelected = true;
+		}
+		if (tempDrawLine)
+		{
+			firstPoint = Vei2((mouseX - 280) / 40, (mouseY - 30) / 40);
+			if (board.GetPoint(firstPoint).IsFree())
+			{
+				activeLineDraw = true;
+				tempDrawLine = false;
+			}
+		}
+	}
+	else if (!wnd.mouse.LeftIsPressed() && !releasedMouseLeft)
+	{
+		releasedMouseLeft = true;
+	}
+	//mouse right
+	if (wnd.mouse.RightIsPressed() && releasedMouseRight)
+	{
+		tempDrawRes = false;
+		tempDrawLine = false;
+		noneSelected = true;
+		activeLineDraw = false;
+		releasedMouseRight = false;
+	}
+	else if (!wnd.mouse.RightIsPressed() && !releasedMouseRight)
+	{
+		releasedMouseRight = true;
+	}
+	//drag/extract Line
+	if (activeLineDraw)
+	{
+		//calc difference
+		distX = (280 + 40 * firstPoint.x) - mouseX;
+		if (distX < 0)
+		{
+			distX = -distX;
+			negX = false;
+		}
+		else
+		{
+			negX = true;
+		}
+		distY = (30 + 40 * firstPoint.y) - mouseY;
+		if (distY < 0)
+		{
+			distY = -distY;
+			negY = false;
+		}
+		else
+		{
+			negY = true;
+		}
 	}
 }
 
@@ -103,7 +183,7 @@ void Game::ComposeFrame()
 		resistors[i].Draw(gfx);
 	}
 
-	if (tempDraw)
+	if (tempDrawRes)
 	{
 		if (resistorDir & 0b1)
 		{
@@ -125,5 +205,71 @@ void Game::ComposeFrame()
 			gfx.DrawRect(mouseX - 120, mouseY - 5, 120, 10, Colors::Black);//res
 			gfx.DrawRect(mouseX - 100, mouseY - 15, 80, 30, Colors::Blue);//res
 		}
+	}
+	//choose point
+	if (tempDrawLine)
+	{
+		if(!activeLineDraw)
+			gfx.DrawRect(mouseX - 12, mouseY - 12, 24, 24, Colors::Gray);//soldering iron in future?
+	}
+	//drag line
+	if (activeLineDraw)
+	{
+		if(negX && negY)
+		{
+			if (distX >= distY)
+			{
+				gfx.DrawRect(mouseX, 30 + firstPoint.y * 40 - 4, distX, 8, Colors::Gray);
+				activeRect = { mouseX, mouseX + distX, 30 + firstPoint.y * 40 - 4, 30 + firstPoint.y * 40 - 4 + 8 };
+			}
+			else
+			{
+				gfx.DrawRect(280 + firstPoint.x * 40 - 4, mouseY, 8, distY, Colors::Gray);
+				activeRect = { 280 + firstPoint.x * 40 - 4, 280 + firstPoint.x * 40 - 4 + 8, mouseY, distY + mouseY };
+			}
+		}
+		else if(negX)
+		{
+			if (distX >= distY)
+			{
+				gfx.DrawRect(mouseX, 30 + firstPoint.y * 40 - 4, distX, 8, Colors::Gray);
+				activeRect = { mouseX, mouseX + distX, 30 + firstPoint.y * 40 - 4, 30 + firstPoint.y * 40 - 4 + 8 };
+			}
+			else
+			{
+				gfx.DrawRect(280 + firstPoint.x * 40 - 4, 30 + firstPoint.y * 40, 8, distY, Colors::Gray);
+				activeRect = { 280 + firstPoint.x * 40 - 4, 280 + firstPoint.x * 40 - 4 + 8, 30 + firstPoint.y * 40, 30 + firstPoint.y * 40 + distY };
+			}
+		}
+		else if(negY)
+		{
+			if (distX >= distY)
+			{
+				gfx.DrawRect(280 + firstPoint.x * 40, 30 + firstPoint.y * 40 - 4, distX, 8, Colors::Gray);
+				activeRect = { 280 + firstPoint.x * 40, 280 + firstPoint.x * 40 + distX, 30 + firstPoint.y * 40 - 4, 30 + firstPoint.y * 40 - 4 + 8 };
+			}
+			else
+			{
+				gfx.DrawRect(280 + firstPoint.x * 40 - 4, mouseY, 8, distY, Colors::Gray);
+				activeRect = { 280 + firstPoint.x * 40 - 4, 280 + firstPoint.x * 40 - 4 + 8, mouseY, mouseY + distY };
+			}
+		}
+		else
+		{
+			if (distX >= distY)
+			{
+				gfx.DrawRect(280 + firstPoint.x * 40, 30 + firstPoint.y * 40 - 4, distX, 8, Colors::Gray);
+				activeRect = { 280 + firstPoint.x * 40, 280 + firstPoint.x * 40 + distX, 30 + firstPoint.y * 40 - 4, 30 + firstPoint.y * 40 - 4 + 8 };
+			}
+			else
+			{
+				gfx.DrawRect(280 + firstPoint.x * 40 - 4, 30 + firstPoint.y * 40, 8, distY, Colors::Gray);
+				activeRect = { 280 + firstPoint.x * 40 - 4, 280 + firstPoint.x * 40 - 4 + 8, 30 + firstPoint.y * 40, 30 + firstPoint.y * 40 + distY };
+			}
+		}
+	}
+	for (int i = 0; i < amountLines; i++)
+	{
+		gfx.DrawRect(lines[i].left, lines[i].top, lines[i].GetWidth(), lines[i].GetHeight(), Colors::Gray);
 	}
 }

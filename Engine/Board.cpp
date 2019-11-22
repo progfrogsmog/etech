@@ -23,9 +23,9 @@ void Board::Init()
 	}
 }
 
-Vei2 Board::GetPointPos(int point)
+Board::Point Board::GetPoint(Vei2& point)
 {
-	return points[point].GetPos();
+	return points[point.y * 30 + point.x];
 }
 
 void Board::Point::SetPos(int x_in, int y_in)
@@ -33,7 +33,12 @@ void Board::Point::SetPos(int x_in, int y_in)
 	pos = { x_in,y_in };
 }
 
-Vei2 Board::Point::GetPos()
+bool Board::Point::IsFree() const
+{
+	return free;
+}
+
+Vei2 Board::Point::GetPos() const
 {
 	return pos;
 }

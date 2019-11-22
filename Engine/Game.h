@@ -25,6 +25,7 @@
 #include "Graphics.h"
 #include "Board.h"
 #include "Resistor.h"
+#include "Rect.h"
 
 class Game
 {
@@ -51,9 +52,21 @@ private:
 	int mouseY = 100;
 	Board board;
 	bool releasedR = true;
-	bool tempDraw = false;
+	bool releasedL = true;
+	bool releasedMouseLeft = true;
+	bool releasedMouseRight = true;
+	bool noneSelected = true;
+	bool tempDrawRes = false;
+	bool tempDrawLine = false;
+	bool activeLineDraw = false;
+	int distX, distY;
+	bool negX = false, negY = false;
 	int amountResistors = 0;
+	int amountLines = 0;
 	char resistorDir = 0;
-	Resistor* resistors = new Resistor[10];
+	Vei2 firstPoint;
+	RectI activeRect;
+	Resistor* resistors = new Resistor[50];
+	RectI* lines = new RectI[50];
 	/********************************/
 };
